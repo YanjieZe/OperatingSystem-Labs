@@ -18,7 +18,7 @@ public class SortTask extends RecursiveAction
 
     protected void compute() 
     {
-        if (end - begin < 4*THRESHOLD) {
+        if (end - begin < THRESHOLD) {
             
             this.quick_sort_pivot(begin, end);
             return;

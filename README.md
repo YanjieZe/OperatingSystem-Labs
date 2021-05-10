@@ -1,7 +1,10 @@
-# Operaintg System Labs 操作系统课程项目
+# Operaintg System Projects 操作系统课程项目
 课程：CS307 操作系统（中文班),CS356 操作系统课程设计（中文班）
 
 时间：2021年秋学期（2021 Fall）
+
+完成者：迮炎杰 (Yanjie Ze)
+
 # 项目概述
 ## Project1: Introduction to Linux Kernel Modules
 完成几个内核模块
@@ -16,4 +19,12 @@
 2. 用Java写两个多线程排序
 
 ## **Project 4:  Scheduling Algorithms**
+
+完成了几个scheduling algorithm：
+
+- FCFS
+- SJF
+- Priority
+- RR
+- Priority-RR
 
