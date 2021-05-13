@@ -425,43 +425,69 @@ Internally, the buffer will consist of a **fixed-size array** of type buffer ite
 ```c
 /* buffer.h */
 typedef int buffer_item;
-#define BUFFER SIZE 5
+#define BUFFER_SIZE 5
 ```
 
-The buffer will be manipulated with two functions, insert item() and remove item(), which are called by the producer and consumer threads, respectively. A skeleton outlining these functions appears in Figure 7.14.
+The buffer will be manipulated with two functions, ==insert_item()== and ==remove_item()==, which are called by the producer and consumer threads, respectively. A skeleton outlining these functions appears in Figure 7.14.
 
-![image-20210511215426724](/Users/yanjieze/Library/Application Support/typora-user-images/image-20210511215426724.png)
-
-
-
-The insert item() and remove item() functions will synchronize the
-
-producer and consumer using the algorithms outlined in Figure 7.1 and Figure
-
-7.2. The buffer will also require an initialization function that initializes the
-
-mutual-exclusion object mutex along with the empty and full semaphores.
+<img src="/Users/yanjieze/Library/Application Support/typora-user-images/image-20210511215426724.png" style="zoom:50%;" />
 
 
 
-The main() function will initialize the buffer and create the separate pro
+The insert_item() and remove_item() functions will synchronize the producer and consumer using the algorithms outlined in Figure 7.1 and Figure 7.2. The buffer will also require an initialization function that initializes the mutual-exclusion object mutex along with the empty and full semaphores.
 
-ducer and consumer threads. Once it has created the producer and consumer
+<img src="/Users/yanjieze/Library/Application Support/typora-user-images/image-20210513123832449.png" alt="image-20210513123832449" style="zoom:50%;" />
 
-threads, the main() function will sleep for a period of time and, upon awaken
+<img src="/Users/yanjieze/Library/Application Support/typora-user-images/image-20210513123853556.png" alt="image-20210513123853556" style="zoom:50%;" />
 
-ing, will terminate the application. The main() function will be passed three
+The main() function will initialize the buffer and create the separate producer and consumer threads. Once it has created the producer and consumer threads, **the main() function will sleep for a period of time** and, upon awakening, will terminate the application. The main() function will be passed three parameters on the command line:
 
-parameters on the command line:
+1. **How long to sleep before terminating**
 
-**1.** How long to sleep before terminating
+2. **The number of producer threads**
 
-**2.** The number of producer threads
-
-**3.** The number of consumer threads
-
-
+3. **The number of consumer threads**
 
 A skeleton for this function appears in Figure 7.15.
 
-![image-20210511215536896](/Users/yanjieze/Library/Application Support/typora-user-images/image-20210511215536896.png)
+<img src="/Users/yanjieze/Library/Application Support/typora-user-images/image-20210511215536896.png" style="zoom:50%;" />
+
+### 1.2 **The Producer and Consumer Threads**
+
+The producer thread will alternate between **sleeping for a random period of time** and **inserting a random integer into the buffer**. Random numbers will be produced using the ==rand()== function, which produces random integers between 0 and RAND MAX. The consumer will also **sleep for a random period of time** and, upon awakening, will **attempt to remove an item from the buffer**.
+
+An outline of the producer and consumer threads appears in Figure 7.16.
+
+<img src="/Users/yanjieze/Library/Application Support/typora-user-images/image-20210513124957364.png" alt="image-20210513124957364" style="zoom:50%;" />
+
+
+
+## 2 Implementation Details and Methods
+
+### 2.1 buffer.h
+
+In **buffer.h**, we define the type **buffer_item**, which is basicly integer type.
+
+And we define the size of the buffer.
+
+```c
+#ifndef buffer_h
+#define buffer_h
+
+typedef int buffer_item;
+#define BUFFER_SIZE 5
+
+#endif
+```
+
+
+
+### 2.2 Implement Method: Top-Down
+
+To implement the whole program, we implement in a top-down manner, which is to say:
+
+**We first construct the overall code frame, then fulfill the function we need to use.**
+
+
+
+Therefore, we first 
