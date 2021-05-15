@@ -490,4 +490,297 @@ To implement the whole program, we implement in a top-down manner, which is to s
 
 
 
-Therefore, we first 
+Therefore, first we introduce the **main()** part. Second, we introduce each function.
+
+
+
+### 2.3 main()
+
+As required, ==main()== is divided into six parts:
+
+1. Get command line arguments argv[1],argv[2],argv[3] 
+
+2. Initialize buffer 
+
+3. Create producer thread(s) 
+
+4. Create consumer thread(s) 
+
+5. Sleep 
+
+6. Exit 
+
+We follow this order.
+
+
+
+**1. Get command line arguments argv[1],argv[2],argv[3]**.
+
+We use ==atoi()== to convert the char into the integer.
+
+```c
+/* 1. Get command line arguments argv[1],argv[2],argv[3] */
+    int sleep_time = atoi(argv[1]);
+    int num_producer = atoi(argv[2]);
+    int num_consumer = atoi(argv[3]);
+```
+
+
+
+**2. Initialize buffer **. 
+
+We initialize the mutex, the semaphore **full&empty**, the array **free_slot** to record whether the buffer slot is free.
+
+```c
+/* 2. Initialize buffer */
+    pthread_mutex_init(&buffer_mutex, NULL);
+    sem_init(&full, 0, 0);
+    sem_init(&empty, 0, BUFFER_SIZE);  
+    for(int i=0; i<BUFFER_SIZE; i++)
+        free_slot[i]=1; // set all buffers to free
+```
+
+
+
+**3. Create producer thread(s).**
+
+```c
+/* 3. Create producer thread(s) */
+    pthread_t producer_thread[num_producer];
+    for(int i=0; i<num_producer; i++)
+    {
+        pthread_create(&producer_thread[i], NULL, producer, NULL);
+    }
+```
+
+
+
+**4. Create consumer thread(s).**
+
+```c
+/* 4. Create consumer thread(s) */
+    pthread_t consumer_thread[num_consumer];
+    for(int i=0; i<num_consumer; i++)
+    {
+        pthread_create(&consumer_thread[i], NULL, consumer, NULL);
+    }
+```
+
+
+
+**5. Sleep.**
+
+The main program falls into sleeping, and the producers and the consumers will continue executing in this period.
+
+```c
+/* 5. Sleep */
+    printf("*Main* begin to sleep.\n");
+    sleep(sleep_time);
+    printf("*Main* wake and begin to terminate.\n");
+```
+
+
+
+**6. Exit**.
+
+All threads are needed to be cancelld. And the mutex and the semaphores are to be destroyed.
+
+```c
+/* 6. Exit */
+    for(int i=0; i<num_producer; i++)
+    {
+        pthread_cancel(producer_thread[i]);
+    }
+    for(int i=0; i<num_consumer; i++)
+    {
+        pthread_cancel(consumer_thread[i]);
+    }
+    sem_destroy(&full);
+    sem_destroy(&empty);
+    pthread_mutex_destroy(&buffer_mutex);
+    printf("Cancel all. Finish.\n");
+```
+
+
+
+### 2.3 insert_item() and producer()
+
+==insert_item()== inserts an item into the buffer.
+
+The function loops over the buffer to see whether the slot is free, by **free_slot**.
+
+If there is a free slot, we insert and set **free_slot[i]=0**.
+
+```c
+/* insert item into buffer
+return 0 if successful, otherwise
+return -1 indicating an error condition */
+int insert_item(buffer_item item) {
+    
+    int insert_success=0;
+    for(int i=0; i<BUFFER_SIZE; ++i)
+    {
+        if(free_slot[i]==1)
+        {
+            insert_success = 1;
+            buffer[i] = item;
+            free_slot[i] = 0;
+            break;
+        }
+    }
+   
+    if(insert_success==1)
+        return 0;
+    else    
+        return 1;
+}
+```
+
+
+
+The producer will call **insert_item()**.
+
+But before that, there's need to use **mutex and semaphore**, to avoid the deadlock and the race condition.
+
+```c
+void *producer(void *param) {
+    buffer_item item;
+    while (1) {
+    /* sleep for a random period of time */
+    int sleep_a_while = rand()%3;
+    sleep(sleep_a_while);
+
+    /* generate a random number */
+    sem_wait(&empty);
+    pthread_mutex_lock(&buffer_mutex);
+    item = rand()%100;
+    if (insert_item(item))
+        printf("Producer Insert Failure.\n");
+    else
+        printf("Producer produced %d.\n",item);
+    pthread_mutex_unlock(&buffer_mutex);
+    sem_post(&full);
+    }
+}
+```
+
+
+
+### 2.4 remove_item() and consumer()
+
+==remove_item()== removes the item from the buffer.
+
+The function loops over the buffer to see whether there exists a free slot.
+
+If there is, set **free_slot[i]=1**,which just means the slot is free.
+
+```c
+/* remove an object from buffer
+placing it in item
+return 0 if successful, otherwise
+return -1 indicating an error condition */
+int remove_item(buffer_item *item) {
+  
+    int remove_success=0;
+    for(int i=0; i<BUFFER_SIZE; ++i)
+    {
+        if(free_slot[i]==0)
+        {
+            remove_success = 1;
+            (*item) = buffer[i];
+            free_slot[i] = 1;
+            break;
+        }
+    }
+    
+    if(remove_success)
+        return 0;
+    else
+        return 1;
+}
+```
+
+
+
+The consumer will call ==remove_item()==, then display the item removed by it.
+
+Note that we need to use **mutex and semaphores** to avoid the deadlock and the race condition.
+
+```c
+void *consumer(void *param) 
+{ 
+    buffer_item item;
+    while (1) {
+    /* sleep for a random period of time */
+    int sleep_a_while = rand()%3;
+    sleep(sleep_a_while);
+    sem_wait(&full);
+    pthread_mutex_lock(&buffer_mutex);
+    if (remove_item(&item))
+    printf("Consumer Remove Failure.\n");
+    else
+    printf("Consumer consumed %d.\n",item);
+    pthread_mutex_unlock(&buffer_mutex);
+    sem_post(&empty);
+    }
+}
+```
+
+
+
+
+
+## 3 Program Results
+
+Our Makefile is:
+
+```makefile
+producer_consumer:
+	gcc buffer.h main.c -o producer_consumer -l pthread
+clean:
+	rm producer_consumer
+```
+
+
+
+To run the program, enter the command as below:
+
+```c
+./producer_consumer sleep_time num_producer num_consumer
+```
+
+
+
+Entering:
+
+```c
+./producer_consumer 5 3 4
+```
+
+We get:
+
+<img src="/Users/yanjieze/Library/Application Support/typora-user-images/image-20210513204451521.png" alt="image-20210513204451521" style="zoom:50%;" />
+
+
+
+Entering:
+
+```c
+./producer_consumer 2 6 6
+```
+
+We get:
+
+<img src="/Users/yanjieze/Library/Application Support/typora-user-images/image-20210513204647560.png" alt="image-20210513204647560" style="zoom:50%;" />
+
+
+
+# Conclusion and Thoughts
+
+In project 5, we dive deep into the usage of the mutex and the semaphore, and get the chance to practise using the two tools to solve the problems.
+
+Concretely, in project5-1, we design a thread pool in **C**, which can function the same as that in Java. We mainly use the mutex to avoid the race condition.
+
+In project5-2, we implement the solution of the producer-consumer problem, which is taught in our OS class. It's a valuable opportunity to solve this problem by hand, since we know the solution theoretically but not do any programming yet.
+
+In conclusion, project 5 further improves our knowledge of the deadlock and how to solve it, and makes us able to construct the program to solve the problem indeed.
