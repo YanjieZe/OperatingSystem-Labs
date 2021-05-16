@@ -28,3 +28,31 @@
 - RR
 - Priority-RR
 
+
+
+## Project 5: **Designing a Thread Pool & The Producer – Consumer Problem**
+
+- 用mutex lock，semaphore，thread写一个线程池
+- 用mutex lock，semaphore模拟producer consumer问题和解决方案
+
+
+
+## **Project 6: Banker’s Algorithm**
+
+写一个银行家算法。
+
+
+
+## **Project 7: Contiguous Memory Allocation**
+
+模拟连续内存分配，写三个分配算法：
+
+- best fit
+- worst fit
+- first fit
+
+
+
+## **Project 8: Designing a Virtual Memory Manager**
+
+模拟虚拟内存和物理内存的转化，写页表和TLB。
