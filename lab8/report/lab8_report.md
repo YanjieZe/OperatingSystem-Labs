@@ -1,6 +1,12 @@
 # Project8: **Designing a Virtual Memory Manager**
 
-Yanjie Ze	519021910706
+<center>
+  Yanjie Ze	519021910706
+</center>
+
+[TOC]
+
+
 
 # 1 Introduction
 

@@ -2,6 +2,8 @@
 
 Yanjie Ze	519021910706
 
+[TOC]
+
 # 1 Introduction
 
 For this project, we will write a program that implements the banker’s algorithm discussed in Section 8.6.3. Customers request and release resources from the bank. The banker will grant a request only if it leaves the system in a safe state. A request that leaves the system in an unsafe state will be denied. 

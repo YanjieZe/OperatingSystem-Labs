@@ -4,6 +4,8 @@
 
 Yanjie Ze	519021910706
 
+[TOC]
+
 
 
 # Project3-1: Multithreaded Sorting Application

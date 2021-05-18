@@ -3,7 +3,7 @@
 
 时间：2021年秋学期（2021 Fall）
 
-完成者：迮炎杰 (Yanjie Ze)
+完成者：迮炎杰 (Yanjie Ze)，全部代码和实验报告完成于2021年5月18日，一个周二的晚上
 
 # 项目概述
 ## Project1: Introduction to Linux Kernel Modules
